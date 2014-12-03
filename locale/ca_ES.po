@@ -1,0 +1,15 @@
+# 
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "field:account.invoice,available_reports:"
+msgid "Available Reports"
+msgstr "Informes disponibles"
+
+msgctxt "field:account.invoice,invoice_action_report:"
+msgid "Report Template"
+msgstr "Plantilla d'informe"
+
+msgctxt "selection:party.alternative_report,model_name:"
+msgid "Invoice"
+msgstr "Factura"
