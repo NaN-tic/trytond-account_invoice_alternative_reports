@@ -65,19 +65,18 @@ class Invoice:
 
     @fields.depends('invoice_action_report')
     def on_change_party(self):
-        res = super(Invoice, self).on_change_party()
+        super(Invoice, self).on_change_party()
         if not self.party:
-            res['invoice_action_report'] = self.default_invoice_action_report()
-            return res
+            self.invoice_action_report = self.default_invoice_action_report()
+            return
         alternative_reports = self.alternative_reports
         if alternative_reports and len(alternative_reports) == 1:
-            res['invoice_action_report'] = alternative_reports[0]
+            self.invoice_action_report = alternative_reports[0]
         elif alternative_reports and len(alternative_reports) > 1:
             # force the user to choose one
-            res['invoice_action_report'] = None
+            self.invoice_action_report = None
         elif not self.invoice_action_report:
-            res['invoice_action_report'] = self.default_invoice_action_report()
-        return res
+            self.invoice_action_report = self.default_invoice_action_report()
 
     def print_invoice(self):
         '''
