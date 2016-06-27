@@ -2,7 +2,7 @@
 # copyright notices and license terms.
 from trytond.model import fields
 from trytond.pool import Pool, PoolMeta
-from trytond.pyson import Eval
+from trytond.pyson import Eval, If
 
 __all__ = ['Invoice', 'PartyAlternativeReport', 'PrintInvoice']
 __metaclass__ = PoolMeta
@@ -27,12 +27,12 @@ class Invoice:
         'on_change_with_available_reports')
     invoice_action_report = fields.Many2One('ir.action.report',
         'Report Template', domain=[
-            ('id', 'in', Eval('available_reports', [])),
+            If(Eval('state') == 'draft', ('id', 'in', Eval('available_reports', [])), ()),
             ],
         states={
             'required': ~Eval('state').in_(['draft', 'cancel']),
             'readonly': Eval('state').in_(['posted', 'paid', 'cancel']),
-            }, depends=['available_reports'])
+            }, depends=['available_reports', 'state'])
 
     @staticmethod
     def default_invoice_action_report():
