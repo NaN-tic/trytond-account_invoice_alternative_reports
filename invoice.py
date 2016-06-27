@@ -5,10 +5,10 @@ from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, If
 
 __all__ = ['Invoice', 'PartyAlternativeReport', 'PrintInvoice']
-__metaclass__ = PoolMeta
 
 
 class PartyAlternativeReport:
+    __metaclass__ = PoolMeta
     __name__ = 'party.alternative_report'
 
     @classmethod
@@ -20,6 +20,7 @@ class PartyAlternativeReport:
 
 
 class Invoice:
+    __metaclass__ = PoolMeta
     __name__ = 'account.invoice'
 
     available_reports = fields.Function(fields.Many2Many('ir.action.report',
@@ -93,6 +94,7 @@ class Invoice:
 
 
 class PrintInvoice:
+    __metaclass__ = PoolMeta
     __name__ = 'account.invoice.print'
 
     def do_print_(self, action):
