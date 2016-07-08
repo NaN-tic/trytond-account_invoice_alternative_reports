@@ -3,8 +3,11 @@
 from trytond.model import fields
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, If
+from trytond.transaction import Transaction
+from trytond.modules.jasper_reports.jasper import JasperReport
 
-__all__ = ['Invoice', 'PartyAlternativeReport', 'PrintInvoice']
+__all__ = ['Invoice', 'PartyAlternativeReport', 'InvoiceReport',
+    'PrintInvoice']
 
 
 class PartyAlternativeReport:
@@ -38,13 +41,13 @@ class Invoice:
     @staticmethod
     def default_invoice_action_report():
         pool = Pool()
-        Report = pool.get('ir.action.report')
+        Config = pool.get('account.configuration')
+        config = Config(1)
 
-        invoice_reports = Report.search([
-                ('model', '=', 'account.invoice'),
-                ('action.active', '=', True),
-                ])
-        return invoice_reports[0].id if invoice_reports else None
+        return (config and config.invoice_action_report and
+            config.invoice_action_report.id or None)
+
+        Report = pool.get('ir.action.report')
 
     @property
     def alternative_reports(self):
@@ -91,6 +94,63 @@ class Invoice:
         InvoiceReport = Pool().get(self.invoice_action_report.report_name,
             type='report')
         InvoiceReport.execute([self.id], {})
+
+
+class InvoiceReport:
+    __name__ = 'account.invoice.jreport'
+    __metaclass__ = PoolMeta
+
+    @classmethod
+    def execute(cls, ids, data):
+        pool = Pool()
+        ActionReport = pool.get('ir.action.report')
+        Invoice = pool.get('account.invoice')
+
+        action_reports = ActionReport.search([
+                ('report_name', '=', cls.__name__)
+                ])
+        action_report = action_reports[0]
+        reports = {}
+        for id_ in ids:
+            invoice = Invoice(id_)
+            if invoice.invoice_action_report:
+                if not invoice.invoice_action_report in reports:
+                    reports[invoice.invoice_action_report] = [invoice.id]
+                else:
+                    reports[invoice.invoice_action_report].append(invoice.id)
+            else:
+                if not action_report in reports:
+                    reports[action_report] = [invoice.id]
+                else:
+                    reports[action_report].append(invoice.id)
+
+        if not reports:
+            raise Exception('Error', 'Report (%s) not find!' % cls.__name__)
+        cls.check_access()
+        type, data, pages = cls.multirender(reports, data)
+        report = reports.keys()[0]
+
+        if Transaction().context.get('return_pages'):
+            return (type, buffer(data), report.direct_print, report.name,
+                pages)
+
+        return (type, buffer(data), report.direct_print, report.name)
+
+
+    @classmethod
+    def multirender(cls, reports, data):
+        allpages = 0
+        invoice_reports_cache = []
+        for report, ids in reports.iteritems():
+            model = report.model or data.get('model')
+            type, data_file, pages = cls.render(report, data, model, ids)
+            invoice_reports_cache.append(data_file)
+
+        if len(invoice_reports_cache) > 1:
+            alldata = JasperReport.merge_pdfs(invoice_reports_cache)
+        else:
+            alldata = invoice_reports_cache[0]
+        return (type, alldata, allpages)
 
 
 class PrintInvoice:
