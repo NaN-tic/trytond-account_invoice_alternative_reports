@@ -85,12 +85,13 @@ class Invoice:
         '''
         Generate invoice report and store it in invoice_report_cache field.
         '''
+        pool = Pool()
         if self.invoice_report_cache:
             return
         assert (self.invoice_action_report != None), (
             "Missing Invoice Report in invoice %s (%s)"
             % (self.rec_name, self.id))
-        InvoiceReport = Pool().get(self.invoice_action_report.report_name,
+        InvoiceReport = pool.get(self.invoice_action_report.report_name,
             type='report')
         InvoiceReport.execute([self.id], {})
 
@@ -104,11 +105,11 @@ class InvoiceReport:
         pool = Pool()
         ActionReport = pool.get('ir.action.report')
         Invoice = pool.get('account.invoice')
+        Config = pool.get('account.configuration')
+        config = Config(1)
 
-        action_reports = ActionReport.search([
-                ('report_name', '=', cls.__name__)
-                ])
-        action_report = action_reports[0]
+        action_report = (config and config.invoice_action_report and
+            config.invoice_action_report.id or None)
         reports = {}
         for id_ in ids:
             invoice = Invoice(id_)
@@ -135,13 +136,13 @@ class InvoiceReport:
 
         return (type, buffer(data), report.direct_print, report.name)
 
-
     @classmethod
     def multirender(cls, reports, data):
         allpages = 0
         invoice_reports_cache = []
         for report, ids in reports.iteritems():
             model = report.model or data.get('model')
+            cls.update_data(report, data)
             type, data_file, pages = cls.render(report, data, model, ids)
             invoice_reports_cache.append(data_file)
 
@@ -150,6 +151,10 @@ class InvoiceReport:
         else:
             alldata = invoice_reports_cache[0]
         return (type, alldata, allpages)
+
+    @classmethod
+    def update_data(cls, report, data):
+        pass
 
 
 class PrintInvoice:
