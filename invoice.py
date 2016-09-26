@@ -40,14 +40,11 @@ class Invoice:
 
     @staticmethod
     def default_invoice_action_report():
-        pool = Pool()
-        Config = pool.get('account.configuration')
+        Config = Pool().get('account.configuration')
         config = Config(1)
 
         return (config and config.invoice_action_report and
             config.invoice_action_report.id or None)
-
-        Report = pool.get('ir.action.report')
 
     @property
     def alternative_reports(self):
@@ -104,7 +101,6 @@ class InvoiceReport:
     @classmethod
     def execute(cls, ids, data):
         pool = Pool()
-        ActionReport = pool.get('ir.action.report')
         Invoice = pool.get('account.invoice')
         Config = pool.get('account.configuration')
         config = Config(1)
