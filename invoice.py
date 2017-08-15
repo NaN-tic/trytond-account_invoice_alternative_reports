@@ -31,8 +31,8 @@ class Invoice:
         'on_change_with_available_reports')
     invoice_action_report = fields.Many2One('ir.action.report',
         'Report Template', domain=[
-            If(Eval('state') == 'draft', ('id', 'in', Eval('available_reports', [])), ()),
-            ],
+            If(Eval('state') == 'draft', ('id', 'in',
+                Eval('available_reports', [])), ()), ],
         states={
             'required': ~Eval('state').in_(['draft', 'cancel']),
             'readonly': Eval('state').in_(['posted', 'paid', 'cancel']),
@@ -111,12 +111,12 @@ class InvoiceReport:
         for id_ in ids:
             invoice = Invoice(id_)
             if invoice.invoice_action_report:
-                if not invoice.invoice_action_report in reports:
+                if invoice.invoice_action_report not in reports:
                     reports[invoice.invoice_action_report] = [invoice.id]
                 else:
                     reports[invoice.invoice_action_report].append(invoice.id)
             else:
-                if not action_report in reports:
+                if action_report not in reports:
                     reports[action_report] = [invoice.id]
                 else:
                     reports[action_report].append(invoice.id)

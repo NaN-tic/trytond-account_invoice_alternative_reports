@@ -24,6 +24,7 @@ def get_require_version(name):
         major_version, minor_version + 1)
     return require
 
+
 config = ConfigParser.ConfigParser()
 config.readfp(open('tryton.cfg'))
 info = dict(config.items('tryton'))
@@ -61,8 +62,8 @@ setup(name='%s_%s' % (PREFIX, MODULE),
         'trytond.modules.%s.tests' % MODULE,
         ],
     package_data={
-        'trytond.modules.%s' % MODULE: (info.get('xml', [])
-            + ['tryton.cfg', 'locale/*.po', 'tests/*.rst']),
+        'trytond.modules.%s' % MODULE: (info.get('xml', []) +
+            ['tryton.cfg', 'locale/*.po', 'tests/*.rst']),
         },
     classifiers=[
         'Development Status :: 5 - Production/Stable',

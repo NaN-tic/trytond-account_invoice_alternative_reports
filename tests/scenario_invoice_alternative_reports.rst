@@ -98,6 +98,13 @@ Create two invoice reports::
     ...         'report_name': 'account.invoice3',
     ...         })
 
+Invoice Rerport configuration::
+    >>> AccountConfiguration = Model.get('account.configuration')
+    >>> config = AccountConfiguration(1)
+    >>> config.invoice_action_report = invoice_report1
+    >>> config.save()
+
+
 Create party without alternative report::
 
     >>> Party = Model.get('party.party')
@@ -180,4 +187,3 @@ lines to invoice and post it::
     >>> invoice.click('post')
     >>> invoice.state
     u'posted'
-
