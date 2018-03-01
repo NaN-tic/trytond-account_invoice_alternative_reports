@@ -1,65 +1,31 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
-from trytond.model import Model, ModelSQL, fields
+from trytond.model import ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
-from trytond.transaction import Transaction
+from trytond.modules.company.model import CompanyValueMixin
 
 __all_ = ['AccountConfiguration', 'AccountConfigurationCompany']
-__metaclass__ = PoolMeta
 
 
 class AccountConfiguration:
+    __metaclass__ = PoolMeta
     __name__ = 'account.configuration'
 
-    invoice_action_report = fields.Function(fields.Many2One('ir.action.report',
-            'Report Template',
-            help='Default report used when creat new invoice'),
-        'get_company_config', 'set_company_config')
+    invoice_action_report = fields.MultiValue(fields.Many2One(
+            'ir.action.report', 'Report Template',
+            help='Default report used when creat new invoice'))
 
     @classmethod
-    def get_company_config(cls, configs, names):
+    def multivalue_model(cls, field):
         pool = Pool()
-        CompanyConfig = pool.get('account.configuration.company')
-
-        company_id = Transaction().context.get('company')
-        company_configs = CompanyConfig.search([
-                ('company', '=', company_id),
-                ])
-
-        res = {}
-        for fname in names:
-            res[fname] = {
-                configs[0].id: None,
-                }
-            if company_configs:
-                val = getattr(company_configs[0], fname)
-                if isinstance(val, Model):
-                    val = val.id
-                res[fname][configs[0].id] = val
-        return res
-
-    @classmethod
-    def set_company_config(cls, configs, name, value):
-        pool = Pool()
-        CompanyConfig = pool.get('account.configuration.company')
-
-        company_id = Transaction().context.get('company')
-        company_configs = CompanyConfig.search([
-                ('company', '=', company_id),
-                ])
-        if company_configs:
-            company_config = company_configs[0]
-        else:
-            company_config = CompanyConfig(company=company_id)
-        setattr(company_config, name, value)
-        company_config.save()
+        if field == 'invoice_action_report':
+            return pool.get('account.configuration.company')
+        return super(AccountConfiguration, cls).multivalue_model(field)
 
 
-class AccountConfigurationCompany(ModelSQL):
+class AccountConfigurationCompany(ModelSQL, CompanyValueMixin):
     'Account Configuration per Company'
     __name__ = 'account.configuration.company'
 
-    company = fields.Many2One('company.company', 'Company', required=True,
-        ondelete='CASCADE', select=True)
-    invoice_action_report = fields.Many2One('ir.action.report',
-        'Report Template')
+    invoice_action_report = fields.Many2One(
+        'ir.action.report', 'Report Template')

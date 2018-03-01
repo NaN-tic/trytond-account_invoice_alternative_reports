@@ -9,6 +9,7 @@ Imports::
     >>> from decimal import Decimal
     >>> from operator import attrgetter
     >>> from proteus import config, Model, Wizard
+    >>> from trytond.tests.tools import activate_modules
     >>> from trytond.modules.company.tests.tools import create_company, \
     ...     get_company
     >>> from trytond.modules.account.tests.tools import create_fiscalyear, \
@@ -17,18 +18,9 @@ Imports::
     ...     set_fiscalyear_invoice_sequences, create_payment_term
     >>> today = datetime.date.today()
 
-Create database::
-
-    >>> config = config.set_trytond()
-    >>> config.pool.test = True
-
 Install account_invoice_alternative_reports::
 
-    >>> Module = Model.get('ir.module')
-    >>> account_invoice_module, = Module.find(
-    ...     [('name', '=', 'account_invoice_alternative_reports')])
-    >>> account_invoice_module.click('install')
-    >>> Wizard('ir.module.install_upgrade').execute('upgrade')
+    >>> config = activate_modules('account_invoice_alternative_reports')
 
 Create company::
 
@@ -97,6 +89,13 @@ Create two invoice reports::
     ...         'name': 'Invoice 3',
     ...         'report_name': 'account.invoice3',
     ...         })
+
+Set default report::
+
+    >>> Config = Model.get('account.configuration')
+    >>> config = Config(1)
+    >>> config.invoice_action_report = invoice_report1
+    >>> config.save()
 
 Create party without alternative report::
 

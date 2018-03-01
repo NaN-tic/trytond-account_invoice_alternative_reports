@@ -1,20 +1,20 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
 from trytond.pool import Pool
-from .invoice import *
-from .configuration import *
+from . import invoice
+from . import configuration
 
 
 def register():
     Pool.register(
-        AccountConfiguration,
-        AccountConfigurationCompany,
-        Invoice,
-        PartyAlternativeReport,
+        configuration.AccountConfiguration,
+        configuration.AccountConfigurationCompany,
+        invoice.Invoice,
+        invoice.PartyAlternativeReport,
         module='account_invoice_alternative_reports', type_='model')
     Pool.register(
-        PrintInvoice,
+        invoice.PrintInvoice,
         module='account_invoice_alternative_reports', type_='wizard')
     Pool.register(
-        InvoiceReport,
+        invoice.InvoiceReport,
         module='account_invoice_alternative_reports', type_='report')
