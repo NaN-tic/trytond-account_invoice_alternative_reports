@@ -126,14 +126,14 @@ class InvoiceReport:
         if not reports:
             raise Exception('Error', 'Report (%s) not find!' % cls.__name__)
         cls.check_access()
-        type, data, pages = cls.multirender(reports, data)
+        type, content, pages = cls.multirender(reports, data)
+        if not isinstance(content, unicode):
+            content = bytearray(content) if bytes == str else bytes(content)
         report = reports.keys()[0]
 
         if Transaction().context.get('return_pages'):
-            return (type, buffer(data), report.direct_print, report.name,
-                pages)
-
-        return (type, buffer(data), report.direct_print, report.name)
+            return (type, content, report.direct_print, report.name, pages)
+        return (type, content, report.direct_print, report.name)
 
     @classmethod
     def multirender(cls, reports, data):
