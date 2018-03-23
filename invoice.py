@@ -6,8 +6,7 @@ from trytond.pyson import Eval, If
 from trytond.transaction import Transaction
 from trytond.modules.jasper_reports.jasper import JasperReport
 
-__all__ = ['Invoice', 'PartyAlternativeReport', 'InvoiceReport',
-    'PrintInvoice']
+__all__ = ['Invoice', 'PartyAlternativeReport', 'InvoiceReport']
 
 
 class PartyAlternativeReport:
@@ -156,19 +155,3 @@ class InvoiceReport:
         pass
 
 
-class PrintInvoice:
-    __metaclass__ = PoolMeta
-    __name__ = 'account.invoice.print'
-
-    def do_print_(self, action):
-        pool = Pool()
-        Action = pool.get('ir.action')
-        Invoice = pool.get('account.invoice')
-
-        action, data = super(PrintInvoice, self).do_print_(action)
-        invoice = Invoice(data['id'])
-        if invoice.invoice_action_report:
-            action_report = invoice.invoice_action_report
-            action = Action.get_action_values(action_report.action.type,
-                [action_report.action.id])[0]
-        return action, data

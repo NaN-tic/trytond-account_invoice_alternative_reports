@@ -13,8 +13,5 @@ def register():
         invoice.PartyAlternativeReport,
         module='account_invoice_alternative_reports', type_='model')
     Pool.register(
-        invoice.PrintInvoice,
-        module='account_invoice_alternative_reports', type_='wizard')
-    Pool.register(
         invoice.InvoiceReport,
         module='account_invoice_alternative_reports', type_='report')
