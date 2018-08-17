@@ -9,8 +9,7 @@ from trytond.modules.jasper_reports.jasper import JasperReport
 __all__ = ['Invoice', 'PartyAlternativeReport', 'InvoiceReport']
 
 
-class PartyAlternativeReport:
-    __metaclass__ = PoolMeta
+class PartyAlternativeReport(metaclass=PoolMeta):
     __name__ = 'party.alternative_report'
 
     @classmethod
@@ -21,8 +20,7 @@ class PartyAlternativeReport:
             cls.model_name.selection.append(option)
 
 
-class Invoice:
-    __metaclass__ = PoolMeta
+class Invoice(metaclass=PoolMeta):
     __name__ = 'account.invoice'
 
     available_reports = fields.Function(fields.Many2Many('ir.action.report',
@@ -95,9 +93,8 @@ class Invoice:
         InvoiceReport.execute([self.id], {})
 
 
-class InvoiceReport:
+class InvoiceReport(metaclass=PoolMeta):
     __name__ = 'account.invoice.jreport'
-    __metaclass__ = PoolMeta
 
     @classmethod
     def execute(cls, ids, data):
@@ -126,9 +123,9 @@ class InvoiceReport:
             raise Exception('Error', 'Report (%s) not find!' % cls.__name__)
         cls.check_access()
         type, content, pages = cls.multirender(reports, data)
-        if not isinstance(content, unicode):
+        if not isinstance(content, str):
             content = bytearray(content) if bytes == str else bytes(content)
-        report = reports.keys()[0]
+        report = list(reports.keys())[0]
 
         if Transaction().context.get('return_pages'):
             return (type, content, report.direct_print, report.name, pages)
@@ -138,7 +135,7 @@ class InvoiceReport:
     def multirender(cls, reports, data):
         allpages = 0
         invoice_reports_cache = []
-        for report, ids in reports.iteritems():
+        for report, ids in reports.items():
             model = report.model or data.get('model')
             cls.update_data(report, data)
             type, data_file, pages = cls.render(report, data, model, ids)

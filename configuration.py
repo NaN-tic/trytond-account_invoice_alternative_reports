@@ -7,8 +7,7 @@ from trytond.modules.company.model import CompanyValueMixin
 __all_ = ['AccountConfiguration', 'AccountConfigurationCompany']
 
 
-class AccountConfiguration:
-    __metaclass__ = PoolMeta
+class AccountConfiguration(metaclass=PoolMeta):
     __name__ = 'account.configuration'
 
     invoice_action_report = fields.MultiValue(fields.Many2One(
