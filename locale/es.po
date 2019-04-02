@@ -1,6 +1,42 @@
-# 
+#
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "field:account.configuration,invoice_action_report:"
+msgid "Report Template"
+msgstr "Plantilla del informe"
+
+msgctxt "field:account.configuration.company,company:"
+msgid "Company"
+msgstr "Empresa"
+
+msgctxt "field:account.configuration.company,create_date:"
+msgid "Create Date"
+msgstr "Fecha de creación"
+
+msgctxt "field:account.configuration.company,create_uid:"
+msgid "Create User"
+msgstr "Usuario de creación"
+
+msgctxt "field:account.configuration.company,id:"
+msgid "ID"
+msgstr "Identificador"
+
+msgctxt "field:account.configuration.company,invoice_action_report:"
+msgid "Report Template"
+msgstr "Plantilla del informe"
+
+msgctxt "field:account.configuration.company,rec_name:"
+msgid "Record Name"
+msgstr "Nombre registro"
+
+msgctxt "field:account.configuration.company,write_date:"
+msgid "Write Date"
+msgstr "Fecha modificación"
+
+msgctxt "field:account.configuration.company,write_uid:"
+msgid "Write User"
+msgstr "Usuario modificación"
 
 msgctxt "field:account.invoice,available_reports:"
 msgid "Available Reports"
@@ -9,6 +45,14 @@ msgstr "Informes disponibles"
 msgctxt "field:account.invoice,invoice_action_report:"
 msgid "Report Template"
 msgstr "Plantilla del informe"
+
+msgctxt "help:account.configuration,invoice_action_report:"
+msgid "Default report used when creat new invoice"
+msgstr "Informe por defecto que se utiliza cuando se crea una factura nueva"
+
+msgctxt "model:account.configuration.company,name:"
+msgid "Account Configuration per Company"
+msgstr "Configuración de cuenta por empresa"
 
 msgctxt "selection:party.alternative_report,model_name:"
 msgid "Invoice"
