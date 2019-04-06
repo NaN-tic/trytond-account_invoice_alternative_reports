@@ -20,7 +20,7 @@ msgstr "Usuario de creación"
 
 msgctxt "field:account.configuration.company,id:"
 msgid "ID"
-msgstr "Identificador"
+msgstr "ID"
 
 msgctxt "field:account.configuration.company,invoice_action_report:"
 msgid "Report Template"
@@ -36,7 +36,7 @@ msgstr "Fecha modificación"
 
 msgctxt "field:account.configuration.company,write_uid:"
 msgid "Write User"
-msgstr "Usuario modificación"
+msgstr "Usuario de modificación"
 
 msgctxt "field:account.invoice,available_reports:"
 msgid "Available Reports"
