@@ -25,7 +25,7 @@ class Invoice(metaclass=PoolMeta):
 
     available_reports = fields.Function(fields.Many2Many('ir.action.report',
             None, None, 'Available Reports'),
-        'on_change_with_available_reports')
+        'get_available_reports')
     invoice_action_report = fields.Many2One('ir.action.report',
         'Report Template', domain=[
             If(Eval('state') == 'draft',
@@ -52,8 +52,7 @@ class Invoice(metaclass=PoolMeta):
         return [ar.report.id for ar in self.party.alternative_reports
             if ar.model_name == 'account.invoice']
 
-    @fields.depends('party')
-    def on_change_with_available_reports(self, name=None):
+    def get_available_reports(self, name=None):
         if not self.party:
             return []
 
@@ -100,6 +99,7 @@ class InvoiceReport(metaclass=PoolMeta):
     def execute(cls, ids, data):
         pool = Pool()
         Invoice = pool.get('account.invoice')
+        Report = pool.get('ir.action.report')
         Config = pool.get('account.configuration')
         config = Config(1)
 
@@ -125,7 +125,7 @@ class InvoiceReport(metaclass=PoolMeta):
         type, content, pages = cls.multirender(reports, data)
         if not isinstance(content, str):
             content = bytearray(content) if bytes == str else bytes(content)
-        report = list(reports.keys())[0]
+        report = Report(list(reports.keys())[0])
 
         if Transaction().context.get('return_pages'):
             return (type, content, report.direct_print, report.name, pages)
@@ -133,9 +133,12 @@ class InvoiceReport(metaclass=PoolMeta):
 
     @classmethod
     def multirender(cls, reports, data):
+        pool = Pool()
+        Report = pool.get('ir.action.report')
         allpages = 0
         invoice_reports_cache = []
-        for report, ids in reports.items():
+        for report_id, ids in reports.items():
+            report = Report(report_id)
             model = report.model or data.get('model')
             cls.update_data(report, data)
             type, data_file, pages = cls.render(report, data, model, ids)
