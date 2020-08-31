@@ -33,8 +33,8 @@ class Invoice(metaclass=PoolMeta):
                 ()),
             ],
         states={
-            'required': ~Eval('state').in_(['draft', 'cancel']),
-            'readonly': Eval('state').in_(['posted', 'paid', 'cancel']),
+            'required': ~Eval('state').in_(['draft', 'cancelled']),
+            'readonly': Eval('state').in_(['posted', 'paid', 'cancelled']),
             }, depends=['available_reports', 'state'])
 
     @staticmethod
@@ -153,5 +153,3 @@ class InvoiceReport(metaclass=PoolMeta):
     @classmethod
     def update_data(cls, report, data):
         pass
-
-
