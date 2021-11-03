@@ -24,8 +24,7 @@ class Invoice(metaclass=PoolMeta):
     __name__ = 'account.invoice'
 
     available_reports = fields.Function(fields.Many2Many('ir.action.report',
-            None, None, 'Available Reports'),
-        'get_available_reports')
+        None, None, 'Available Reports'), 'on_change_with_available_reports')
     invoice_action_report = fields.Many2One('ir.action.report',
         'Report Template', domain=[
             If(Eval('state') == 'draft',
@@ -45,12 +44,16 @@ class Invoice(metaclass=PoolMeta):
         return (config and config.invoice_action_report and
             config.invoice_action_report.id or None)
 
-    @property
-    def alternative_reports(self):
+    @fields.depends('party', '_parent_party.alternative_reports')
+    def on_change_with_available_reports(self, name=None):
+        default_invoice_report = self.default_invoice_action_report()
         if not self.party:
-            return []
-        return [ar.report.id for ar in self.party.alternative_reports
+            return [default_invoice_report]
+        alternative_reports = [ar.report.id for ar in self.party.alternative_reports
             if ar.model_name == 'account.invoice']
+        if not default_invoice_report in alternative_reports:
+            alternative_reports.append(default_invoice_report)
+        return alternative_reports
 
     def get_available_reports(self, name=None):
         if not self.party:
@@ -62,20 +65,28 @@ class Invoice(metaclass=PoolMeta):
             alternative_reports.append(default_report)
         return alternative_reports
 
-    @fields.depends('invoice_action_report')
+    @fields.depends('invoice_action_report',
+        methods=['on_change_with_available_reports',])
     def on_change_party(self):
         super(Invoice, self).on_change_party()
+
+        default_invoice_report = self.default_invoice_action_report()
+
         if not self.party:
-            self.invoice_action_report = self.default_invoice_action_report()
+            self.invoice_action_report = default_invoice_report
             return
-        alternative_reports = self.alternative_reports
+
+        alternative_reports = self.on_change_with_available_reports()
+        if default_invoice_report in alternative_reports:
+            alternative_reports.remove(default_invoice_report)
+
         if alternative_reports and len(alternative_reports) == 1:
             self.invoice_action_report = alternative_reports[0]
         elif alternative_reports and len(alternative_reports) > 1:
             # force the user to choose one
             self.invoice_action_report = None
         elif not self.invoice_action_report:
-            self.invoice_action_report = self.default_invoice_action_report()
+            self.invoice_action_report = default_invoice_report
 
     def print_invoice(self):
         '''
@@ -153,5 +164,3 @@ class InvoiceReport(metaclass=PoolMeta):
     @classmethod
     def update_data(cls, report, data):
         pass
-
-
