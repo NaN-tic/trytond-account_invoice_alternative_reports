@@ -1,6 +1,6 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
-from trytond.model import fields
+from trytond.model import fields, dualmethod
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, If
 from trytond.transaction import Transaction
@@ -77,19 +77,21 @@ class Invoice(metaclass=PoolMeta):
         elif not self.invoice_action_report:
             self.invoice_action_report = self.default_invoice_action_report()
 
-    def print_invoice(self):
+    @dualmethod
+    def print_invoice(cls, invoices):
         '''
         Generate invoice report and store it in invoice_report_cache field.
         '''
         pool = Pool()
-        if self.invoice_report_cache:
-            return
-        assert self.invoice_action_report, (
-            "Missing Invoice Report in invoice %s (%s)"
-            % (self.rec_name, self.id))
-        InvoiceReport = pool.get(self.invoice_action_report.report_name,
-            type='report')
-        InvoiceReport.execute([self.id], {})
+        for invoice in invoices:
+            if invoice.invoice_report_cache:
+                return
+            assert invoice.invoice_action_report, (
+                "Missing Invoice Report in invoice %s (%s)"
+                % (invoice.rec_name, invoice.id))
+            InvoiceReport = pool.get(invoice.invoice_action_report.report_name,
+                type='report')
+            InvoiceReport.execute([invoice.id], {})
 
 
 class InvoiceReport(metaclass=PoolMeta):
