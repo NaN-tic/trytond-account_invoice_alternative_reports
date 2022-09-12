@@ -155,3 +155,47 @@ class InvoiceReport(metaclass=PoolMeta):
     @classmethod
     def update_data(cls, report, data):
         pass
+
+
+class InvoiceReportHTML(metaclass=PoolMeta):
+    __name__ = 'account.invoice'
+
+    @classmethod
+    def execute(cls, ids, data):
+        pool = Pool()
+        Invoice = pool.get('account.invoice')
+        Config = pool.get('account.configuration')
+        config = Config(1)
+
+        action_report = (config and config.invoice_action_report and
+            config.invoice_action_report.id or None)
+
+        if len(ids) == 1:
+            # Re-instantiate because records are TranslateModel
+            invoice, = Invoice.browse(ids)
+            if invoice.invoice_action_report:
+                data = {'action_id': invoice.invoice_action_report.id}
+            else:
+                data = {'action_id': action_report.id}
+
+            action, _ = cls.get_action(data)
+            if invoice.invoice_report_cache:
+                return (
+                    invoice.invoice_report_format,
+                    bytes(invoice.invoice_report_cache),
+                    cls.get_direct_print(action),
+                    cls.get_name(action))
+
+        result = super(InvoiceReportHTML, cls).execute(ids, data)
+
+        if (len(ids) == 1 and invoice.state in {'posted', 'paid'}
+                and invoice.type == 'out'):
+            with Transaction().set_context(_check_access=False):
+                invoice, = Invoice.browse([invoice.id])
+                format_, data = result[0], result[1]
+                invoice.invoice_report_format = format_
+                invoice.invoice_report_cache = \
+                    Invoice.invoice_report_cache.cast(data)
+                invoice.save()
+
+        return result
