@@ -25,7 +25,7 @@ class Invoice(metaclass=PoolMeta):
 
     available_reports = fields.Function(fields.Many2Many('ir.action.report',
             None, None, 'Available Reports'),
-        'get_available_reports')
+        'on_change_with_available_reports')
     invoice_action_report = fields.Many2One('ir.action.report',
         'Report Template', domain=[
             If(Eval('state') == 'draft',
@@ -52,7 +52,8 @@ class Invoice(metaclass=PoolMeta):
         return [ar.report.id for ar in self.party.alternative_reports
             if ar.model_name == 'account.invoice']
 
-    def get_available_reports(self, name=None):
+    @fields.depends('party')
+    def on_change_with_available_reports(self, name=None):
         if not self.party:
             return []
 
@@ -62,7 +63,6 @@ class Invoice(metaclass=PoolMeta):
             alternative_reports.append(default_report)
         return alternative_reports
 
-    @fields.depends('invoice_action_report')
     def on_change_party(self):
         super(Invoice, self).on_change_party()
         if not self.party:
