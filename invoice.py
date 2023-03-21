@@ -63,6 +63,7 @@ class Invoice(metaclass=PoolMeta):
             alternative_reports.append(default_report)
         return alternative_reports
 
+    @fields.depends('invoice_action_report')
     def on_change_party(self):
         super(Invoice, self).on_change_party()
         if not self.party:
