@@ -84,14 +84,18 @@ Create two invoice reports::
 
     >>> ActionReport = Model.get('ir.action.report')
     >>> invoice_report1, = ActionReport.find([('model', '=', 'account.invoice')])
-    >>> invoice_report2, = ActionReport.duplicate([invoice_report1,], default={
-    ...         'name': 'Invoice 2',
-    ...         'report_name': 'account.invoice2',
-    ...         })
-    >>> invoice_report3, = ActionReport.duplicate([invoice_report1,], default={
-    ...         'name': 'Invoice 3',
-    ...         'report_name': 'account.invoice3',
-    ...         })
+    >>> invoice_report2 = ActionReport()
+    >>> invoice_report2.name = 'Invoice 2'
+    >>> invoice_report2.report_name = 'account.invoice2'
+    >>> invoice_report2.template_extension = invoice_report1.template_extension
+    >>> invoice_report2.model = invoice_report1.model
+    >>> invoice_report2.save()
+    >>> invoice_report3 = ActionReport()
+    >>> invoice_report3.name = 'Invoice 3'
+    >>> invoice_report3.report_name = 'account.invoice3'
+    >>> invoice_report3.template_extension = invoice_report1.template_extension
+    >>> invoice_report3.model = invoice_report1.model
+    >>> invoice_report3.save()
 
 Set default report::
 
