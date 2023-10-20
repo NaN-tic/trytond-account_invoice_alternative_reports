@@ -104,6 +104,10 @@ class InvoiceReport(metaclass=PoolMeta):
         Invoice = pool.get('account.invoice')
         Report = pool.get('ir.action.report')
         Config = pool.get('account.configuration')
+
+        if not ids:
+            return (None, None, None, None)
+
         config = Config(1)
 
         action_report = (config and config.invoice_action_report and
