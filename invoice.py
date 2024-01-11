@@ -35,7 +35,7 @@ class Invoice(metaclass=PoolMeta):
         states={
             'required': ~Eval('state').in_(['draft', 'cancelled']),
             'readonly': Eval('state').in_(['posted', 'paid', 'cancelled']),
-            }, depends=['available_reports', 'state'])
+            })
 
     @staticmethod
     def default_invoice_action_report():
