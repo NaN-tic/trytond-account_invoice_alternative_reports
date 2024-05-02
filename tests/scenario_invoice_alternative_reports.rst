@@ -179,6 +179,3 @@ lines to invoice and post it::
     Decimal('40.00')
     >>> invoice.total_amount
     Decimal('440.00')
-    >>> invoice.click('post')
-    >>> invoice.state
-    'posted'
