@@ -6,5 +6,5 @@
             <field name="inherit" ref="account.configuration_view_form"/>
             <field name="name">configuration_form</field>
         </record>
-     </data>
+    </data>
 </tryton>
