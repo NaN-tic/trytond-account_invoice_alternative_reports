@@ -6,15 +6,13 @@ from trytond.pyson import Eval, If
 from trytond.transaction import Transaction
 from trytond.modules.jasper_reports.jasper import JasperReport
 
-__all__ = ['Invoice', 'PartyAlternativeReport', 'InvoiceReport']
-
 
 class PartyAlternativeReport(metaclass=PoolMeta):
     __name__ = 'party.alternative_report'
 
     @classmethod
     def __setup__(cls):
-        super(PartyAlternativeReport, cls).__setup__()
+        super().__setup__()
         option = ('account.invoice', 'Invoice')
         if option not in cls.model_name.selection:
             cls.model_name.selection.append(option)
@@ -65,7 +63,7 @@ class Invoice(metaclass=PoolMeta):
 
     @fields.depends('invoice_action_report')
     def on_change_party(self):
-        super(Invoice, self).on_change_party()
+        super().on_change_party()
         if not self.party:
             self.invoice_action_report = self.default_invoice_action_report()
             return
@@ -191,7 +189,7 @@ class InvoiceReportHTML(metaclass=PoolMeta):
                     cls.get_direct_print(action),
                     cls.get_name(action))
 
-        result = super(InvoiceReportHTML, cls).execute(ids, data)
+        result = super().execute(ids, data)
 
         if (len(ids) == 1 and invoice.state in {'posted', 'paid'}
                 and invoice.type == 'out'):

@@ -23,9 +23,8 @@ class Test(unittest.TestCase):
         super().tearDown()
 
     def test(self):
-
         # Install account_invoice_alternative_reports
-        config = activate_modules('account_invoice_alternative_reports')
+        config = activate_modules(['account_invoice_alternative_reports', 'account_invoice_jreport_cache'])
 
         # Create company
         _ = create_company()
