@@ -4,8 +4,6 @@ from trytond.model import ModelSQL, fields
 from trytond.pool import Pool, PoolMeta
 from trytond.modules.company.model import CompanyValueMixin
 
-__all_ = ['AccountConfiguration', 'AccountConfigurationCompany']
-
 
 class AccountConfiguration(metaclass=PoolMeta):
     __name__ = 'account.configuration'
@@ -19,7 +17,7 @@ class AccountConfiguration(metaclass=PoolMeta):
         pool = Pool()
         if field == 'invoice_action_report':
             return pool.get('account.configuration.company')
-        return super(AccountConfiguration, cls).multivalue_model(field)
+        return super().multivalue_model(field)
 
 
 class AccountConfigurationCompany(ModelSQL, CompanyValueMixin):

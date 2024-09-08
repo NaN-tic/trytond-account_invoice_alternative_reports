@@ -14,7 +14,8 @@ def register():
         module='account_invoice_alternative_reports', type_='model')
     Pool.register(
         invoice.InvoiceReport,
-        module='account_invoice_alternative_reports', type_='report')
+        module='account_invoice_alternative_reports', type_='report',
+        depends=['account_invoice_jreport_cache'])
     Pool.register(
         invoice.InvoiceReportHTML,
         module='account_invoice_alternative_reports', type_='report',
