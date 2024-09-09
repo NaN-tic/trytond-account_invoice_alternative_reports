@@ -170,8 +170,7 @@ class InvoiceReportHTML(metaclass=PoolMeta):
         Config = pool.get('account.configuration')
         config = Config(1)
 
-        action_report = (config and config.invoice_action_report and
-            config.invoice_action_report.id or None)
+        action_report = config and config.invoice_action_report
 
         if len(ids) == 1:
             # Re-instantiate because records are TranslateModel
