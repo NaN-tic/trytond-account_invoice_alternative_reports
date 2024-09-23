@@ -2,8 +2,8 @@
 <!-- This file is part of Tryton.  The COPYRIGHT file at the top level of
 this repository contains the full copyright notices and license terms. -->
 <data>
-    <xpath expr="/form" position="inside">
-        <newline />
+    <xpath expr="/form/separator[@id='move']" position="before">
+        <separator id="invoice_report" string="Invocie Report" colspan="4"/>
         <label name="invoice_action_report"/>
         <field name="invoice_action_report"/>
     </xpath>
