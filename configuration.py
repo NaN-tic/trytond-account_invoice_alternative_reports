@@ -9,7 +9,7 @@ class AccountConfiguration(metaclass=PoolMeta):
     __name__ = 'account.configuration'
 
     invoice_action_report = fields.MultiValue(fields.Many2One(
-            'ir.action.report', 'Report Template',
+            'ir.action.report', 'Invoice Report Template',
             help='Default report used when creat new invoice'))
 
     @classmethod
@@ -25,4 +25,4 @@ class AccountConfigurationCompany(ModelSQL, CompanyValueMixin):
     __name__ = 'account.configuration.company'
 
     invoice_action_report = fields.Many2One(
-        'ir.action.report', 'Report Template')
+        'ir.action.report', 'Invoice Report Template')

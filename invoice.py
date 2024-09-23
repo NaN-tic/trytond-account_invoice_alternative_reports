@@ -25,7 +25,7 @@ class Invoice(metaclass=PoolMeta):
             None, None, 'Available Reports'),
         'on_change_with_available_reports')
     invoice_action_report = fields.Many2One('ir.action.report',
-        'Report Template', domain=[
+        'Invoice Report Template', domain=[
             If(Eval('state') == 'draft',
                 ('id', 'in', Eval('available_reports', [])),
                 ()),
@@ -118,7 +118,7 @@ class InvoiceReport(metaclass=PoolMeta):
                     reports[invoice.invoice_action_report] = [invoice.id]
                 else:
                     reports[invoice.invoice_action_report].append(invoice.id)
-            else:
+            elif action_report:
                 if action_report not in reports:
                     reports[action_report] = [invoice.id]
                 else:
@@ -168,17 +168,25 @@ class InvoiceReportHTML(metaclass=PoolMeta):
         pool = Pool()
         Invoice = pool.get('account.invoice')
         Config = pool.get('account.configuration')
-        config = Config(1)
 
-        action_report = config and config.invoice_action_report
+        config = Config(1)
 
         if len(ids) == 1:
             # Re-instantiate because records are TranslateModel
             invoice, = Invoice.browse(ids)
-            if invoice.invoice_action_report:
-                data = {'action_id': invoice.invoice_action_report.id}
+            action_report_id = (
+                (invoice.invoice_action_report and invoice.invoice_action_report.id)
+                or (config.invoice_action_report and config.invoice_action_report.id)
+                or data.get('action_id'))
+
+            if not action_report_id:
+                raise Exception('Error', 'Report (%s) not find!' % cls.__name__)
+
+            if data is None:
+                data = {}
             else:
-                data = {'action_id': action_report.id}
+                data = data.copy()
+            data['action_id'] = action_report_id
 
             action, _ = cls.get_action(data)
             if invoice.invoice_report_cache:
