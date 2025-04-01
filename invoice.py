@@ -109,7 +109,7 @@ class InvoiceReport(metaclass=PoolMeta):
         config = Config(1)
 
         action_report = (config and config.invoice_action_report and
-            config.invoice_action_report.id or None)
+            config.invoice_action_report or None)
         reports = {}
         for id_ in ids:
             invoice = Invoice(id_)
@@ -119,14 +119,15 @@ class InvoiceReport(metaclass=PoolMeta):
                 else:
                     reports[invoice.invoice_action_report].append(invoice.id)
             elif action_report:
-                if action_report not in reports:
-                    reports[action_report] = [invoice.id]
+                action_report_id = action_report.id
+                if action_report_id not in reports:
+                    reports[action_report_id] = [invoice.id]
                 else:
-                    reports[action_report].append(invoice.id)
+                    reports[action_report_id].append(invoice.id)
 
         if not reports:
             raise Exception('Error', 'Report (%s) not find!' % cls.__name__)
-        cls.check_access()
+        cls.check_access(action_report, 'account.invoice', ids)
         type, content, pages = cls.multirender(reports, data)
         if not isinstance(content, str):
             content = bytearray(content) if bytes == str else bytes(content)
