@@ -9,10 +9,7 @@ from configparser import ConfigParser
 
 MODULE = 'account_invoice_alternative_reports'
 PREFIX = 'nantic'
-MODULE2PREFIX = {
-    'account_invoice_jreport_cache': 'nantic',
-    'party_alternative_reports': 'nantic',
-    }
+MODULE2PREFIX = {}
 
 
 def read(fname):
@@ -49,30 +46,21 @@ for dep in info.get('depends', []):
         requires.append(get_require_version('%s_%s' % (prefix, dep)))
 requires.append(get_require_version('trytond'))
 
-tests_require = [get_require_version('proteus')]
+tests_require = [
+    get_require_version('proteus'),
+]
+
 series = '%s.%s' % (major_version, minor_version)
 if minor_version % 2:
     branch = 'default'
 else:
     branch = series
-dependency_links = [
-    ('hg+https://bitbucket.org/nantic/'
-        'trytond-account_invoice_jreport_cache@%(branch)s'
-        '#egg=nantic-account_invoice_jreport_cache-%(series)s' % {
-            'branch': branch,
-            'series': series,
-            }),
-    ('hg+https://bitbucket.org/nantic/'
-        'trytond-party_alternative_reports@%(branch)s'
-        '#egg=nantic-party_alternative_reports-%(series)s' % {
-            'branch': branch,
-            'series': series,
-            }),
-    ]
+
+dependency_links = []
+
 if minor_version % 2:
     # Add development index for testing with proteus
     dependency_links.append('https://trydevpi.tryton.org/')
-
 
 setup(name='%s_%s' % (PREFIX, MODULE),
     version=version,
@@ -89,7 +77,7 @@ setup(name='%s_%s' % (PREFIX, MODULE),
         ],
     package_data={
         'trytond.modules.%s' % MODULE: (info.get('xml', [])
-            + ['tryton.cfg', 'view/*.xml', 'locale/*.po', 'tests/*.rst']),
+            + ['tryton.cfg', 'locale/*.po', 'tests/*.rst']),
         },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
