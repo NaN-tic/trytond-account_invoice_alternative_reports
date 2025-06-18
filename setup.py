@@ -10,8 +10,8 @@ from configparser import ConfigParser
 MODULE = 'account_invoice_alternative_reports'
 PREFIX = 'nantic'
 MODULE2PREFIX = {
-    'account_invoice_jreport_cache',
-    'party_alternative_reports',
+    'account_invoice_jreport_cache': 'nantic',
+    'party_alternative_reports': 'nantic',
 }
 
 
@@ -80,7 +80,7 @@ setup(name='%s_%s' % (PREFIX, MODULE),
         ],
     package_data={
         'trytond.modules.%s' % MODULE: (info.get('xml', [])
-            + ['tryton.cfg', 'locale/*.po', 'tests/*.rst']),
+            + ['tryton.cfg', 'view/*.xml', 'locale/*.po', 'tests/*.rst']),
         },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
