@@ -121,7 +121,7 @@ class Test(unittest.TestCase):
 
         # Create invoice for party without alternative report
         Invoice = Model.get('account.invoice')
-        invoice = Invoice()
+        invoice = Invoice(type='out')
         invoice.party = party1
         invoice.payment_term = payment_term
 
