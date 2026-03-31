@@ -4,7 +4,6 @@ from trytond.model import fields, dualmethod
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, If
 from trytond.transaction import Transaction
-from trytond.modules.jasper_reports.jasper import JasperReport
 
 
 class PartyAlternativeReport(metaclass=PoolMeta):
@@ -94,74 +93,6 @@ class Invoice(metaclass=PoolMeta):
 
 
 class InvoiceReport(metaclass=PoolMeta):
-    __name__ = 'account.invoice.jreport'
-
-    @classmethod
-    def execute(cls, ids, data):
-        pool = Pool()
-        Invoice = pool.get('account.invoice')
-        Report = pool.get('ir.action.report')
-        Config = pool.get('account.configuration')
-
-        if not ids:
-            return (None, None, None, None)
-
-        config = Config(1)
-
-        action_report = (config and config.invoice_action_report and
-            config.invoice_action_report or None)
-        reports = {}
-        for id_ in ids:
-            invoice = Invoice(id_)
-            if invoice.invoice_action_report:
-                if invoice.invoice_action_report not in reports:
-                    reports[invoice.invoice_action_report] = [invoice.id]
-                else:
-                    reports[invoice.invoice_action_report].append(invoice.id)
-            elif action_report:
-                action_report_id = action_report.id
-                if action_report_id not in reports:
-                    reports[action_report_id] = [invoice.id]
-                else:
-                    reports[action_report_id].append(invoice.id)
-
-        if not reports:
-            raise Exception('Error', 'Report (%s) not find!' % cls.__name__)
-        cls.check_access(action_report, 'account.invoice', ids)
-        type, content, pages = cls.multirender(reports, data)
-        if not isinstance(content, str):
-            content = bytearray(content) if bytes == str else bytes(content)
-        report = Report(list(reports.keys())[0])
-
-        if Transaction().context.get('return_pages'):
-            return (type, content, report.direct_print, report.name, pages)
-        return (type, content, report.direct_print, report.name)
-
-    @classmethod
-    def multirender(cls, reports, data):
-        pool = Pool()
-        Report = pool.get('ir.action.report')
-        allpages = 0
-        invoice_reports_cache = []
-        for report_id, ids in reports.items():
-            report = Report(report_id)
-            model = report.model or data.get('model')
-            cls.update_data(report, data)
-            type, data_file, pages = cls.render(report, data, model, ids)
-            invoice_reports_cache.append(data_file)
-
-        if len(invoice_reports_cache) > 1:
-            alldata = JasperReport.merge_pdfs(invoice_reports_cache)
-        else:
-            alldata = invoice_reports_cache[0]
-        return (type, alldata, allpages)
-
-    @classmethod
-    def update_data(cls, report, data):
-        pass
-
-
-class InvoiceReportHTML(metaclass=PoolMeta):
     __name__ = 'account.invoice'
 
     @classmethod
