@@ -24,7 +24,7 @@ class Test(unittest.TestCase):
 
     def test(self):
         # Install account_invoice_alternative_reports
-        config = activate_modules(['account_invoice_alternative_reports', 'account_invoice_jreport_cache'])
+        config = activate_modules(['account_invoice_alternative_reports', 'html_report'])
 
         # Create company
         _ = create_company()
