@@ -128,7 +128,11 @@ class InvoiceReport(metaclass=PoolMeta):
                     cls.get_direct_print(action),
                     cls.get_name(action))
 
-        result = super().execute(ids, data)
+        if action and action.report_name != cls.__name__:
+            Report = pool.get(action.report_name, type='report')
+            result = Report.execute(ids, data)
+        else:
+            result = super().execute(ids, data)
 
         if (len(ids) == 1 and invoice.state in {'posted', 'paid'}
                 and invoice.type == 'out'):
