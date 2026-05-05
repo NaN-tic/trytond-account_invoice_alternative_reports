@@ -81,14 +81,13 @@ class Invoice(metaclass=PoolMeta):
         Generate invoice report and store it in invoice_report_cache field.
         '''
         pool = Pool()
+        InvoiceReport = pool.get('account.invoice', type='report')
         for invoice in invoices:
             if invoice.invoice_report_cache:
                 return
             assert invoice.invoice_action_report, (
                 "Missing Invoice Report in invoice %s (%s)"
                 % (invoice.rec_name, invoice.id))
-            InvoiceReport = pool.get(invoice.invoice_action_report.report_name,
-                type='report')
             InvoiceReport.execute([invoice.id], {})
 
 
@@ -101,7 +100,11 @@ class InvoiceReport(metaclass=PoolMeta):
         Invoice = pool.get('account.invoice')
         Config = pool.get('account.configuration')
 
+        if data is None:
+            data = {}
+
         config = Config(1)
+        action = None
 
         if len(ids) == 1:
             # Re-instantiate because records are TranslateModel
@@ -114,10 +117,7 @@ class InvoiceReport(metaclass=PoolMeta):
             if not action_report_id:
                 raise Exception('Error', 'Report (%s) not find!' % cls.__name__)
 
-            if data is None:
-                data = {}
-            else:
-                data = data.copy()
+            data = data.copy()
             data['action_id'] = action_report_id
 
             action, _ = cls.get_action(data)

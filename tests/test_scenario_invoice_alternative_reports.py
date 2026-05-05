@@ -81,14 +81,18 @@ class Test(unittest.TestCase):
         invoice_report2 = ActionReport()
         invoice_report2.name = 'Invoice 2'
         invoice_report2.report_name = 'account.invoice2'
-        invoice_report2.template_extension = invoice_report1.template_extension
+        invoice_report2.template_extension = 'txt'
+        invoice_report2.extension = 'txt'
         invoice_report2.model = invoice_report1.model
+        invoice_report2.report_content = b'Alternative report 2: ${records[0].party.name}'
         invoice_report2.save()
         invoice_report3 = ActionReport()
         invoice_report3.name = 'Invoice 3'
         invoice_report3.report_name = 'account.invoice3'
-        invoice_report3.template_extension = invoice_report1.template_extension
+        invoice_report3.template_extension = 'txt'
+        invoice_report3.extension = 'txt'
         invoice_report3.model = invoice_report1.model
+        invoice_report3.report_content = b'Alternative report 3: ${records[0].party.name}'
         invoice_report3.save()
 
         # Set default report
@@ -99,18 +103,18 @@ class Test(unittest.TestCase):
 
         # Create party without alternative report
         Party = Model.get('party.party')
-        party1 = Party(name='Party')
+        party1 = Party(name='Party 1')
         party1.save()
 
         # Create party with one alternative report
-        party2 = Party(name='Party')
+        party2 = Party(name='Party 2')
         alternative_report = party2.alternative_reports.new()
         alternative_report.model_name = 'account.invoice'
         alternative_report.report = invoice_report2
         party2.save()
 
         # Create party with two alternative report
-        party3 = Party(name='Party')
+        party3 = Party(name='Party 3')
         alternative_report = party3.alternative_reports.new()
         alternative_report.model_name = 'account.invoice'
         alternative_report.report = invoice_report2
@@ -152,8 +156,15 @@ class Test(unittest.TestCase):
         line.unit_price = Decimal('80.00')
         self.assertEqual(line.amount, Decimal('400.00'))
         invoice.save()
+        invoice.reload()
+        self.assertEqual(invoice.invoice_action_report, invoice_report3)
         self.assertEqual(invoice.untaxed_amount, Decimal('400.00'))
         self.assertEqual(invoice.tax_amount, Decimal('40.00'))
         self.assertEqual(invoice.total_amount, Decimal('440.00'))
+        self.assertEqual(invoice_report3.template_extension, 'txt')
+        self.assertEqual(invoice_report3.extension, 'txt')
+        self.assertEqual(
+            bytes(invoice_report3.report_content),
+            b'Alternative report 3: ${records[0].party.name}')
         invoice.click('post')
         self.assertEqual(invoice.state, 'posted')
