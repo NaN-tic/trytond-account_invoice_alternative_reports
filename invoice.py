@@ -1,8 +1,12 @@
 # The COPYRIGHT file at the top level of this repository contains the full
 # copyright notices and license terms.
+from io import BytesIO
+import zipfile
+
 from trytond.model import fields, dualmethod
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval, If
+from trytond.tools import slugify
 from trytond.transaction import Transaction
 
 
@@ -95,6 +99,15 @@ class InvoiceReport(metaclass=PoolMeta):
     __name__ = 'account.invoice'
 
     @classmethod
+    def _build_zip_result(cls, reports):
+        content = BytesIO()
+        with zipfile.ZipFile(content, 'w') as content_zip:
+            for i, (extension, data, _, name) in enumerate(reports, 1):
+                filename = slugify(name or '%s-%s' % (cls.__name__, i))
+                content_zip.writestr('%s.%s' % (filename, extension), data)
+        return ('zip', content.getvalue(), False, reports[0][3])
+
+    @classmethod
     def execute(cls, ids, data):
         pool = Pool()
         Invoice = pool.get('account.invoice')
@@ -104,11 +117,9 @@ class InvoiceReport(metaclass=PoolMeta):
             data = {}
 
         config = Config(1)
-        action = None
 
-        if len(ids) == 1:
-            # Re-instantiate because records are TranslateModel
-            invoice, = Invoice.browse(ids)
+        reports = []
+        for invoice in Invoice.browse(ids):
             action_report_id = (
                 (invoice.invoice_action_report and invoice.invoice_action_report.id)
                 or (config.invoice_action_report and config.invoice_action_report.id)
@@ -117,31 +128,41 @@ class InvoiceReport(metaclass=PoolMeta):
             if not action_report_id:
                 raise Exception('Error', 'Report (%s) not find!' % cls.__name__)
 
-            data = data.copy()
-            data['action_id'] = action_report_id
-
-            action, _ = cls.get_action(data)
+            invoice_data = data.copy()
+            invoice_data['action_id'] = action_report_id
+            action, _ = cls.get_action(invoice_data)
             if invoice.invoice_report_cache:
-                return (
+                result = (
                     invoice.invoice_report_format,
                     bytes(invoice.invoice_report_cache),
                     cls.get_direct_print(action),
                     cls.get_name(action))
+            else:
+                if action and action.report_name != cls.__name__:
+                    Report = pool.get(action.report_name, type='report')
+                    result = Report.execute([invoice.id], invoice_data)
+                else:
+                    result = super().execute([invoice.id], invoice_data)
 
-        if action and action.report_name != cls.__name__:
-            Report = pool.get(action.report_name, type='report')
-            result = Report.execute(ids, data)
-        else:
-            result = super().execute(ids, data)
+                if (invoice.state in {'posted', 'paid'}
+                        and invoice.type == 'out'):
+                    with Transaction().set_context(_check_access=False):
+                        format_, report_data = result[0], result[1]
+                        invoice.invoice_report_format = format_
+                        invoice.invoice_report_cache = \
+                            Invoice.invoice_report_cache.cast(report_data)
+                        invoice.save()
 
-        if (len(ids) == 1 and invoice.state in {'posted', 'paid'}
-                and invoice.type == 'out'):
-            with Transaction().set_context(_check_access=False):
-                invoice, = Invoice.browse([invoice.id])
-                format_, data = result[0], result[1]
-                invoice.invoice_report_format = format_
-                invoice.invoice_report_cache = \
-                    Invoice.invoice_report_cache.cast(data)
-                invoice.save()
+            reports.append(result)
 
-        return result
+        if not reports:
+            return super().execute(ids, data)
+        if len(ids) > 1:
+            if all(report[0] == 'pdf' for report in reports):
+                return (
+                    'pdf',
+                    cls.merge_pdfs([bytes(report[1]) for report in reports]),
+                    all(report[2] for report in reports),
+                    reports[0][3])
+            return cls._build_zip_result(reports)
+        return reports[0]
