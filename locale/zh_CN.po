@@ -1,0 +1,44 @@
+#
+msgid ""
+msgstr ""
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgctxt "field:account.configuration,invoice_action_report:"
+msgid "Invoice Report Template"
+msgstr "发票报表模板"
+
+msgctxt "field:account.configuration.company,company:"
+msgid "Company"
+msgstr "公司"
+
+msgctxt "field:account.configuration.company,invoice_action_report:"
+msgid "Invoice Report Template"
+msgstr "发票报表模板"
+
+msgctxt "field:account.invoice,available_reports:"
+msgid "Available Reports"
+msgstr "可用报表"
+
+msgctxt "field:account.invoice,invoice_action_report:"
+msgid "Invoice Report Template"
+msgstr "发票报表模板"
+
+msgctxt "help:account.configuration,invoice_action_report:"
+msgid "Default report used when creat new invoice"
+msgstr "创建新发票时使用的默认报表。"
+
+msgctxt "model:account.configuration.company,name:"
+msgid "Account Configuration per Company"
+msgstr "按公司配置会计"
+
+msgctxt "selection:party.alternative_report,model_name:"
+msgid "Invoice"
+msgstr "原始凭证"
+
+msgctxt "view:account.configuration:"
+msgid "Invocie Report"
+msgstr "发票报表"
