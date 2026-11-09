@@ -1,0 +1,44 @@
+#
+msgid ""
+msgstr ""
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "field:account.configuration,invoice_action_report:"
+msgid "Invoice Report Template"
+msgstr "Számlakép sablonja"
+
+msgctxt "field:account.configuration.company,company:"
+msgid "Company"
+msgstr "Cég"
+
+msgctxt "field:account.configuration.company,invoice_action_report:"
+msgid "Invoice Report Template"
+msgstr "Számlakép sablonja"
+
+msgctxt "field:account.invoice,available_reports:"
+msgid "Available Reports"
+msgstr "Elérhető jelentések"
+
+msgctxt "field:account.invoice,invoice_action_report:"
+msgid "Invoice Report Template"
+msgstr "Számlakép sablonja"
+
+msgctxt "help:account.configuration,invoice_action_report:"
+msgid "Default report used when creat new invoice"
+msgstr "Új számla létrehozásakor használt alapértelmezett jelentés."
+
+msgctxt "model:account.configuration.company,name:"
+msgid "Account Configuration per Company"
+msgstr "Vállalatonkénti könyvelési beállítások"
+
+msgctxt "selection:party.alternative_report,model_name:"
+msgid "Invoice"
+msgstr "Számla"
+
+msgctxt "view:account.configuration:"
+msgid "Invocie Report"
+msgstr "Számlakép"
